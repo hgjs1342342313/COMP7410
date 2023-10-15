@@ -62,6 +62,15 @@ hist(dataset$expenses)
 hist(dataset$deferral_payments)
 hist(dataset$deferred_income)
 hist(dataset$restricted_stock_deferred)
+
+
+# *********************************
+# 2.1.4 The rest of the variables: to_messages, total_payments, loan_advances, exercised_stock_options, from_messages, other, long_term_incentive, director_fees, 
+columns <- c("to_messages", "total_payments", "loan_advances", "exercised_stock_options", 
+             "from_messages", "other", "long_term_incentive", "director_fees", "shared_receipt_with_poi", "restricted_stock")
+for (col in columns) {
+  hist(dataset[[col]], main = col, xlab = col)
+}
 # *****************************************
 
 
@@ -87,6 +96,22 @@ hist(dataset$deferral_payments[dataset$deferral_payments < 5e6])
 hist(dataset$deferred_income[dataset$deferred_income > -5e6])
 hist(dataset$restricted_stock_deferred[dataset$restricted_stock_deferred > -5e6 & dataset$restricted_stock_deferred < 0])
 # *****************************************
+
+
+# 2.2.4 The rest distributions: to_messages, total_payments, loan_advances, exercised_stock_options, from_messages, other, long_term_incentive, director_fees, 
+columns <- c("to_messages", "total_payments", "exercised_stock_options", "from_messages",
+              "other", "long_term_incentive", "director_fees", "restricted_stock")
+thresholds <- c(5000, 5e7, 5e7, 4000, 5e6, 5e6, 2e5, 2e7)
+
+plot_histogram <- function(dataset, column, threshold) {
+  data_subset <- dataset[[column]][dataset[[column]] < threshold]
+  hist(data_subset, main = column, xlab = column)
+}
+for (i in 1:length(columns)) {
+  plot_histogram(dataset, columns[i], thresholds[i])
+}
+hist(dataset$loan_advances[dataset$loan_advances < 2e7])
+hist(dataset$loan_advances[dataset$loan_advances > 8e7])
 
 
 # *****************************************
@@ -261,6 +286,11 @@ ggplot(dataset, aes(x = restricted_stock_deferred, fill = factor(poi))) +
 
 #cor(x, y, use = "everything", method = "pearson")
 selected_features <- dataset[, c("from_poi_to_this_person", "total_stock_value", "deferral_payments", "deferred_income", "restricted_stock_deferred")]
+corr_mat <- cor(selected_features, use = "complete.obs", method = "pearson")
+corrplot(corr_mat, method="number")
+corrplot(corr_mat, method="color")
+# Also, we could remove the features which contain many nans to plot the corr_matrix
+selected_features <- subset(dataset, select = -c(X, poi, email_address, deferred_income, deferral_payments, director_fees, loan_advances, long_term_incentive, restricted_stock_deferred))
 corr_mat <- cor(selected_features, use = "complete.obs", method = "pearson")
 corrplot(corr_mat, method="number")
 corrplot(corr_mat, method="color")
